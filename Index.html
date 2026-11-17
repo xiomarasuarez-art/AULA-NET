@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1F4FA0">
+<title>AulaNet · Biblioteca Digital Sin Conexión</title>
+<style>
+:root{
+  --blue:#1F4FA0; --blue-d:#173E80; --blue-l:#E7EEF9; --blue-m:#C9D8F2;
+  --ink:#14203A; --text:#2A3346; --muted:#5D6778; --line:#D8DEE8; --bg:#F2F4F8; --card:#fff;
+  --green:#1E7A3C; --green-bg:#E5F2E9; --green-ink:#2F5A40;
+  --amber:#9A5A00; --amber-bg:#FFF1D6; --amber-tile:#FDE9C2;
+  --dark:#0F1A2E; --dark2:#18263F; --dark3:#22324F;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:Roboto,"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;background:#1E1E1E;color:var(--text);display:flex;align-items:center;justify-content:center;gap:32px;min-height:100vh;padding:20px;font-size:13px}
+button{font:inherit;color:inherit;cursor:pointer}
+input,select{font:inherit;color:inherit}
+
+/* ---------- Marco del celular ---------- */
+.phone{width:375px;height:min(812px,calc(100vh - 40px));min-height:600px;background:var(--bg);border-radius:40px;border:11px solid #0B0B0D;box-shadow:0 0 0 2px #2c2c30,0 30px 80px rgba(0,0,0,.55);position:relative;overflow:hidden;display:flex;flex-direction:column;flex-shrink:0}
+.status{height:28px;flex-shrink:0;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px 0 20px;font-size:11.5px;font-weight:700;color:#111;z-index:3}
+.status .r{display:flex;align-items:center;gap:5px;font-size:10.5px}
+.status .r .i{font-size:13px}
+.screens{flex:1;position:relative;overflow:hidden}
+.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;display:none;background:var(--bg);scrollbar-width:none}
+.screen::-webkit-scrollbar{display:none}
+.screen.active{display:block;animation:enter .22s ease-out}
+.screen.active.fromleft{animation:enterl .22s ease-out}
+@keyframes enter{from{opacity:.3;transform:translateX(18px)}to{opacity:1;transform:none}}
+@keyframes enterl{from{opacity:.3;transform:translateX(-18px)}to{opacity:1;transform:none}}
+.nav{flex-shrink:0;display:flex;background:#fff;border-top:1px solid var(--line);padding:6px 10px 2px;z-index:3}
+.nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9.5px;color:#4A5466;padding:6px 0 5px;border-radius:9px;background:none;border:0;margin:0 3px}
+.nav button .i{font-size:17px}
+.nav button.on{background:var(--blue-l);color:var(--blue);font-weight:700}
+.homebar{height:18px;flex-shrink:0;background:#fff;display:flex;justify-content:center;align-items:center;z-index:3}
+.homebar b{width:100px;height:4px;border-radius:2px;background:#1b1b1b}
+.phone.dark .status,.phone.dark .homebar{background:var(--dark);color:#fff}
+.phone.dark .homebar b{background:#e8ecf3}
+.phone.nonav .nav{display:none}
+
+/* ---------- Iconos ---------- */
+.i{display:inline-flex;width:1em;height:1em;flex-shrink:0;align-items:center;justify-content:center}
+.i svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- Encabezados ---------- */
+.hdr{background:#fff;padding:14px 18px 12px}
+.hdr .row{display:flex;align-items:flex-start;gap:10px}
+.hdr h1{font-size:21px;line-height:1.18;color:var(--ink);font-weight:800;letter-spacing:-.2px}
+.hdr .sub{font-size:11px;color:var(--muted);margin-top:4px}
+.hdr .grow{flex:1}
+.back{background:none;border:0;font-size:19px;color:var(--ink);padding:2px 4px 0 0;display:flex;margin-top:1px}
+.icon-btn{background:var(--blue-l);border:0;color:var(--blue);width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.banner{display:flex;gap:6px;align-items:center;font-size:10.5px;font-weight:700;padding:7px 18px}
+.banner .i{font-size:13px}
+.banner.off{background:var(--green-bg);color:var(--green)}
+.banner.on{background:var(--blue-l);color:var(--blue)}
+
+/* ---------- Contenido ---------- */
+.content{padding:14px 14px 24px;display:flex;flex-direction:column;gap:12px}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:13px}
+.note{border-radius:10px;padding:12px 13px;display:flex;gap:9px;font-size:11px;line-height:1.4}
+.note>.i{font-size:16px;margin-top:1px}
+.note b{display:block;font-size:11.5px;margin-bottom:2px}
+.note.green{background:var(--green-bg);color:var(--green-ink)}
+.note.green b,.note.green>.i{color:var(--green)}
+.note.blue{background:var(--blue-l);color:#2C3E66}
+.note.blue b,.note.blue>.i{color:var(--blue)}
+.note.amber{background:var(--amber-bg);color:#6A4A10}
+.note ol{margin:4px 0 0 14px}
+h2.t{font-size:15px;color:var(--ink);font-weight:800}
+.sec{display:flex;justify-content:space-between;align-items:baseline;margin-top:4px}
+.sec span{font-size:10.5px;color:var(--muted)}
+.muted{color:var(--muted)}
+.small{font-size:10.5px;color:var(--muted);line-height:1.45}
+.p{font-size:12px;line-height:1.5;color:var(--text)}
+.foot{text-align:center;font-size:10.5px;color:var(--muted);padding:4px 0}
+.blue{color:var(--blue)}
+.row-b{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.bar{height:5px;background:#E1E6EE;border-radius:3px;overflow:hidden;margin:9px 0 7px}
+.bar i{display:block;height:100%;background:var(--blue);border-radius:3px;transition:width .45s ease}
+.bar.amber i{background:#D08A12}
+
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:40px;padding:8px 12px;border-radius:6px;font-size:12px;font-weight:700;border:1px solid var(--blue);transition:transform .08s,background .15s}
+.btn .i{font-size:15px}
+.btn.pri{background:var(--blue);color:#fff}
+.btn.pri:hover{background:var(--blue-d)}
+.btn.sec{background:#fff;color:var(--blue)}
+.btn.sec:hover{background:#F5F8FD}
+.btn:active{transform:scale(.98)}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.btn.dark{background:transparent;color:#E6ECF7;border-color:#7C8AA5}
+
+/* Tarjeta de recurso */
+.res{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:9px}
+.res-top{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.tile{width:30px;height:30px;border-radius:8px;background:var(--blue-l);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.res-t{display:block;font-size:12.5px;color:var(--ink);font-weight:700;margin-bottom:2px}
+.res small{font-size:10.5px;color:var(--muted)}
+.st{display:flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700}
+.st .i{font-size:13px}
+.st.ok{color:var(--green)} .st.go{color:var(--blue)} .st.wait{color:var(--amber)}
+.res .extra{font-size:10.5px;color:var(--text)}
+
+/* Inputs */
+.search{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:0 12px;height:38px}
+.search .i{font-size:15px;color:var(--muted)}
+.search input{border:0;outline:0;flex:1;font-size:12px;background:transparent}
+.filters{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.filters label{font-size:10px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.sel{position:relative}
+.sel select{appearance:none;-webkit-appearance:none;width:100%;height:34px;border:1px solid var(--line);border-radius:7px;background:#fff;padding:0 26px 0 10px;font-size:11.5px;font-weight:600;color:var(--ink)}
+.sel .i{position:absolute;right:8px;top:10px;font-size:14px;pointer-events:none;color:var(--ink)}
+
+/* Menú */
+.mitem{display:flex;align-items:center;gap:11px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;cursor:pointer;text-align:left;width:100%}
+.mitem b{display:block;font-size:12px;color:var(--blue);margin-bottom:2px}
+.mitem span.d{font-size:10.5px;color:var(--muted);line-height:1.35}
+.mitem .grow{flex:1}
+.mitem>.i{color:var(--blue);font-size:16px}
+.mitem.hl{background:var(--blue);border-color:var(--blue)}
+.mitem.hl b,.mitem.hl span.d,.mitem.hl>.i{color:#fff}
+.mitem.hl .tile{background:rgba(255,255,255,.18);color:#fff}
+
+/* Compartir */
+.opts{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.opt{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:10.5px;color:var(--blue);font-weight:600;text-align:center;line-height:1.2}
+.opt .i{font-size:17px}
+.opt.on{border:2px solid var(--blue);background:var(--blue-l);padding:9px 3px}
+.steps{display:flex;flex-direction:column;gap:11px;margin-top:10px}
+.step{display:flex;gap:10px}
+.step .n{width:22px;height:22px;border-radius:50%;background:var(--blue-l);color:var(--blue);font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step b{display:block;font-size:11.5px;color:var(--ink);margin-bottom:2px}
+.step span{font-size:10.5px;color:var(--muted);line-height:1.4}
+
+/* Preparar clase */
+.citem{background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 12px;display:flex;flex-direction:column;gap:9px}
+.citem .top{display:flex;gap:9px;align-items:flex-start}
+.citem .top>.i{font-size:16px;color:var(--blue);margin-top:1px}
+.citem .grow{flex:1}
+.citem b{font-size:12px;color:var(--ink);display:block;margin-bottom:2px}
+.citem small{font-size:10.5px;color:var(--muted)}
+.xbtn{background:none;border:0;font-size:15px;color:var(--ink);display:flex;padding:2px}
+.pill{display:flex;align-items:center;gap:6px;border-radius:6px;padding:6px 9px;font-size:10.5px;font-weight:700}
+.pill .i{font-size:13px}
+.pill.ok{background:var(--green-bg);color:var(--green)}
+.pill.wait{background:var(--amber-bg);color:var(--amber)}
+.pill.chk{background:var(--blue-l);color:var(--blue)}
+.field{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.field label{font-size:10px;color:var(--muted);display:block;margin-bottom:5px}
+.field input{border:0;outline:0;width:100%;font-size:13.5px;font-weight:700;color:var(--ink);background:transparent}
+
+/* Estados */
+.big-ic{width:46px;height:46px;border-radius:10px;background:var(--amber-tile);color:#A0630A;display:flex;align-items:center;justify-content:center;font-size:23px}
+h2.st-t{font-size:17px;color:var(--ink);font-weight:800;margin-top:2px}
+.amber-t{color:var(--amber);font-weight:700;font-size:10.5px}
+.links{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;font-size:10.5px;color:var(--muted)}
+.links button{background:none;border:0;color:var(--blue);text-decoration:underline;font-size:10.5px;padding:2px}
+
+/* Sistema solar */
+.sim-box{background:#121B2E;border-radius:6px;overflow:hidden;position:relative}
+.sim-box .lbl{position:absolute;left:9px;top:7px;font-size:9.5px;color:#C9D3E6}
+.sim-box svg{display:block;width:100%;height:auto}
+
+/* Modo clase (oscuro) */
+.screen.darkscr{background:var(--dark);color:#E9EEF7}
+.darkscr .hdr{background:var(--dark)}
+.darkscr .hdr h1,.darkscr .back{color:#fff}
+.darkscr .hdr .sub{color:#AFBBD0}
+.darkscr .banner{background:#1A2945;color:#E6ECF6}
+.dcard{background:var(--dark3);border-radius:8px;padding:14px;font-size:13.5px;line-height:1.5;color:#F1F4FA}
+.dcard p+p{margin-top:10px;font-size:12px;color:#CBD5E6}
+.pareja{border:1px solid #8090AC;border-radius:8px;padding:12px}
+.pareja small{font-size:9.5px;font-weight:800;letter-spacing:.4px;color:#C9D3E6}
+.pareja b{display:block;font-size:13.5px;color:#fff;margin-top:5px;line-height:1.35}
+.darkscr .foot{color:#AFBBD0}
+.darkscr h2.q{font-size:18px;font-weight:800;color:#fff}
+
+/* Hojas, toasts */
+.overlay{position:absolute;inset:0;background:rgba(10,16,30,.45);z-index:10;display:none;align-items:flex-end}
+.overlay.show{display:flex;animation:fade .18s}
+@keyframes fade{from{opacity:0}}
+.sheet{background:#fff;width:100%;border-radius:18px 18px 0 0;padding:10px 16px 18px;max-height:86%;overflow-y:auto;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:.4}}
+.sheet .grab{width:38px;height:4px;border-radius:2px;background:#CDD3DD;margin:0 auto 12px}
+.sheet h3{font-size:15px;color:var(--ink);font-weight:800;margin-bottom:4px}
+.sheet .stack{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.dev{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:11px;background:#fff;text-align:left;width:100%}
+.dev b{display:block;font-size:12px;color:var(--ink)}
+.dev small{font-size:10.5px;color:var(--muted)}
+.dev .grow{flex:1}
+.chk{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px 11px;cursor:pointer}
+.chk input{width:17px;height:17px;accent-color:var(--blue)}
+.chk .grow{flex:1;font-size:12px;color:var(--ink);font-weight:600}
+.chk small{display:block;font-weight:400;color:var(--muted);font-size:10.5px}
+.spin{width:34px;height:34px;border:3px solid var(--blue-l);border-top-color:var(--blue);border-radius:50%;animation:rot .8s linear infinite;margin:14px auto}
+@keyframes rot{to{transform:rotate(360deg)}}
+.done-ic{width:52px;height:52px;border-radius:50%;background:var(--green-bg);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:28px;margin:8px auto}
+.center{text-align:center}
+.toast{position:absolute;left:50%;bottom:92px;transform:translateX(-50%) translateY(10px);background:#1C2537;color:#fff;font-size:11.5px;padding:10px 14px;border-radius:10px;opacity:0;transition:.25s;pointer-events:none;z-index:20;width:max-content;max-width:86%;text-align:center;line-height:1.4}
+.toast.show{opacity:1;transform:translateX(-50%)}
+.toggle{width:40px;height:22px;border-radius:11px;background:#C3CAD6;position:relative;border:0;transition:.2s;flex-shrink:0}
+.toggle::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s}
+.toggle.on{background:var(--blue)}
+.toggle.on::after{left:21px}
+
+/* Lectura / ficha */
+.reading{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px;line-height:1.65;color:var(--text)}
+.reading h3{font-size:15px;color:var(--ink);margin-bottom:8px}
+.reading p{margin-bottom:10px}
+.paper{background:#fff;border:1px solid #CCD3DE;box-shadow:0 2px 6px rgba(20,32,58,.08);border-radius:3px;padding:18px 16px;font-size:11px;line-height:1.55;color:#222}
+.paper h4{font-size:13px;color:var(--ink);margin-bottom:4px}
+.paper .ln{border-bottom:1px solid #9AA3B2;height:18px;margin:4px 0}
+.paper .pg{font-size:9px;color:#888;text-align:right;margin-top:8px}
+.seg{display:flex;gap:6px}
+.seg button{flex:1;border:1px solid var(--line);background:#fff;border-radius:7px;height:32px;font-size:11.5px;font-weight:700;color:var(--blue)}
+.seg button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+/* Panel lateral (solo PC) */
+.panel{width:250px;color:#D9DEE8;font-size:12px;align-self:center;max-height:calc(100vh - 40px);overflow:auto}
+.panel h3{font-size:15px;color:#fff;margin-bottom:2px}
+.panel p{color:#9AA3B5;font-size:11px;margin-bottom:14px;line-height:1.45}
+.panel h4{font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:#7F8AA0;margin:14px 0 6px}
+.panel button{display:block;width:100%;text-align:left;background:#2A2A2E;border:1px solid #38383E;color:#E8EBF2;border-radius:7px;padding:7px 10px;margin-bottom:5px;font-size:11.5px}
+.panel button:hover{background:#34343A;border-color:#4C5A78}
+.panel button.cur{border-color:#5B86D6;background:#24324F}
+
+@media (max-width:760px){.panel{display:none}}
+@media (max-width:520px){
+  body{padding:0;display:block;background:var(--bg)}
+  .phone{width:100%;height:100vh;height:100dvh;min-height:0;border:0;border-radius:0;box-shadow:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== Sprite de íconos (SVG en línea, sin internet) ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></symbol>
+  <symbol id="i-clase" viewBox="0 0 24 24"><path d="M12 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M18.4 2.6a2 2 0 0 1 2.9 2.9L12 14.8l-4 1 1-4z"/></symbol>
+  <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M2 8.8a15 15 0 0 1 20 0M5 12.6a10 10 0 0 1 14 0M8.5 16.2a5 5 0 0 1 7 0"/><circle cx="12" cy="19.6" r=".9" fill="currentColor"/></symbol>
+  <symbol id="i-wifioff" viewBox="0 0 24 24"><path d="M2 8.8a15 15 0 0 1 4.3-2.9M10.7 5.1A15 15 0 0 1 22 8.8M5 12.6a10 10 0 0 1 4-2.4M16.7 10.9a10 10 0 0 1 2.3 1.7M8.5 16.2a5 5 0 0 1 7 0M3 3l18 18"/><circle cx="12" cy="19.6" r=".9" fill="currentColor"/></symbol>
+  <symbol id="i-battery" viewBox="0 0 24 24"><rect x="2" y="7" width="17" height="10" rx="2"/><path d="M22 11v2"/><rect x="4.5" y="9.5" width="10" height="5" rx=".5" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8.2 12.2 2.6 2.6 5-5.4"/></symbol>
+  <symbol id="i-tick" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.8v14.4L19 12z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6.5" y="5" width="3.5" height="14" rx="1"/><rect x="14" y="5" width="3.5" height="14" rx="1"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H6.5a1.5 1.5 0 0 0-1.5 1.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></symbol>
+  <symbol id="i-filealert" viewBox="0 0 24 24"><path d="M14 3H6.5a1.5 1.5 0 0 0-1.5 1.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8z"/><path d="M14 3v5h5M12 11v4M12 18h.01"/></symbol>
+  <symbol id="i-headphones" viewBox="0 0 24 24"><path d="M3.5 15v-3a8.5 8.5 0 0 1 17 0v3"/><rect x="3" y="14" width="5" height="7" rx="1.5"/><rect x="16" y="14" width="5" height="7" rx="1.5"/></symbol>
+  <symbol id="i-shapes" viewBox="0 0 24 24"><path d="M8.3 10a.7.7 0 0 1-.6-1.1l3.7-6a.7.7 0 0 1 1.2 0l3.7 6a.7.7 0 0 1-.6 1.1z"/><rect x="3" y="14" width="7" height="7" rx="1"/><circle cx="17.5" cy="17.5" r="3.5"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20.5 11A8.5 8.5 0 0 0 5.3 6.8L3.5 9M3.5 13a8.5 8.5 0 0 0 15.2 4.2l1.8-2.2"/><path d="M3.5 4v5h5M20.5 20v-5h-5"/></symbol>
+  <symbol id="i-chevd" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-chevr" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+  <symbol id="i-arrowr" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="m8.3 10.7 7.4-4.3M8.3 13.3l7.4 4.3"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7.5V6a1 1 0 0 1 1-1h5l2 2h8a1 1 0 0 1 1 1v2"/><path d="M3 7.5V19h15.5l3-8.5H7.2a1 1 0 0 0-.9.6L3 19"/></symbol>
+  <symbol id="i-bt" viewBox="0 0 24 24"><path d="m7 7 10 10-5 4.5V2.5L17 7 7 17"/></symbol>
+  <symbol id="i-usb" viewBox="0 0 24 24"><path d="M12 2.5v15"/><path d="m9.5 5 2.5-2.5L14.5 5"/><path d="M12 14.5 7 11.5V9"/><path d="m12 12.5 5-3V7"/><circle cx="7" cy="7.8" r="1.3"/><rect x="15.6" y="5" width="2.8" height="2.4"/><circle cx="12" cy="19.5" r="2"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2"/><path d="M11 18h2"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.3 7.5 9.5 4.3-1.2 7.5-4.9 7.5-9.5V6z"/><path d="m9 12 2.2 2.2L15.2 10"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></symbol>
+  <symbol id="i-drive" viewBox="0 0 24 24"><path d="M2.5 13h19"/><path d="M5.7 5.6 2.5 13v5a1 1 0 0 0 1 1h17a1 1 0 0 0 1-1v-5l-3.2-7.4a1 1 0 0 0-.9-.6H6.6a1 1 0 0 0-.9.6z"/><path d="M6.5 16h.01M10 16h.01"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6.5h16M4 12h16M4 17.5h16"/></symbol>
+  <symbol id="i-orbit" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.7 14.5A8.2 8.2 0 1 1 14.5 4.3"/><circle cx="18.6" cy="5.4" r="2"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H20v15H5.5A1.5 1.5 0 0 0 4 19.5z"/><path d="M4 19.5A1.5 1.5 0 0 0 5.5 21H20v-3"/></symbol>
+  <symbol id="i-video" viewBox="0 0 24 24"><rect x="2.5" y="6" width="13" height="12" rx="2"/><path d="m15.5 10.5 6-3.5v10l-6-3.5"/></symbol>
+  <symbol id="i-printer" viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2"/><rect x="6" y="14" width="12" height="7"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.6a3.5 3.5 0 0 1 0 6.8M21.5 20a6.5 6.5 0 0 0-4-6"/></symbol>
+</svg>
+
+<!-- ===== Celular ===== -->
+<div class="phone" id="phone">
+  <div class="status" id="statusbar">
+    <span>8:30</span>
+    <span class="r"><i class="i" id="sb-net" data-i="wifioff"></i><i class="i" data-i="battery"></i>82%</span>
+  </div>
+
+  <div class="screens" id="screens">
+
+    <!-- ================= INICIO ================= -->
+    <section class="screen" id="s-inicio" data-net="off" data-tab="inicio">
+      <div class="hdr"><div class="row">
+        <div class="grow"><h1>Biblioteca Digital<br>Sin Conexión</h1><p class="sub">Recursos para secundaria</p></div>
+        <button class="icon-btn" data-go="menu" aria-label="Abrir menú"><i class="i" data-i="menu"></i></button>
+      </div></div>
+      <div class="banner off"><i class="i" data-i="wifioff"></i>Sin conexión · usa lo descargado</div>
+      <div class="content">
+        <div class="note green"><i class="i" data-i="check"></i><div><b>Tus recursos están listos</b>Abre y comparte sin datos ni internet.</div></div>
+        <div class="card">
+          <div class="row-b"><b style="font-size:11.5px;color:var(--ink)">Espacio del celular</b><b class="blue" style="font-size:11.5px">120 MB libres</b></div>
+          <div class="bar"><i style="width:80%"></i></div>
+          <div class="small">480 de 600 MB usados · incluye otros archivos</div>
+        </div>
+        <div class="sec"><h2 class="t">Listos para abrir</h2><span id="ini-count">8 recursos</span></div>
+        <div class="res">
+          <div class="res-top" data-go="detalle"><span class="tile"><i class="i" data-i="orbit"></i></span><div><b class="res-t">El sistema solar</b><small>2.° · Ciencia · Simulación · 18 MB</small></div></div>
+          <div class="st ok"><i class="i" data-i="check"></i>Descargado</div>
+          <button class="btn pri" data-go="sim"><i class="i" data-i="play"></i>Abrir simulación</button>
+        </div>
+        <div class="res">
+          <div class="res-top" data-go="lectura"><span class="tile"><i class="i" data-i="file"></i></span><div><b class="res-t">Un relato de mi comunidad</b><small>2.° · Comunicación · Lectura · 2 MB</small></div></div>
+          <div class="st ok"><i class="i" data-i="check"></i>Descargado</div>
+          <button class="btn pri" data-go="lectura"><i class="i" data-i="play"></i>Abrir lectura</button>
+        </div>
+        <button class="btn sec" data-go="clase"><i class="i" data-i="clase"></i>Preparar mi clase</button>
+        <p class="foot">Sin registro. Sin anuncios. Sin usar tus datos.</p>
+      </div>
+    </section>
+
+    <!-- ================= EXPLORAR ================= -->
+    <section class="screen" id="s-explorar" data-net="on" data-tab="explorar">
+      <div class="hdr"><h1>Explorar recursos</h1><p class="sub">Paquetes por grado, curso y tema</p></div>
+      <div class="banner on"><i class="i" data-i="wifi"></i>Wifi conectado · sin usar datos móviles</div>
+      <div class="content">
+        <div class="search"><i class="i" data-i="search"></i><input id="q" type="search" placeholder="Buscar un tema o recurso" autocomplete="off"></div>
+        <div class="filters">
+          <label>Grado<span class="sel"><select id="f-grado"><option>1.°</option><option selected>2.°</option><option>3.°</option><option>4.°</option><option>5.°</option></select><i class="i" data-i="chevd"></i></span></label>
+          <label>Curso<span class="sel"><select id="f-curso"><option>Todos</option><option>Ciencia</option><option>Comunicación</option><option>Matemática</option><option>Sociales</option></select><i class="i" data-i="chevd"></i></span></label>
+          <label>Tipo<span class="sel"><select id="f-tipo"><option>Todos</option><option>Simulación</option><option>Lectura</option><option>Audio</option><option>Actividad</option><option>Mapas y fotos</option></select><i class="i" data-i="chevd"></i></span></label>
+        </div>
+        <div class="note blue"><i class="i" data-i="download"></i><div><b>Descarga una vez con wifi</b>Después podrás abrir todo sin internet.</div></div>
+        <h2 class="t" id="ex-count">5 recursos · 2.° de secundaria</h2>
+        <div id="ex-list" style="display:flex;flex-direction:column;gap:12px">
+          <div class="res" data-curso="Ciencia" data-tipo="Simulación" data-q="el sistema solar universo planetas sol tierra">
+            <div class="res-top" data-go="detalle"><span class="tile"><i class="i" data-i="orbit"></i></span><div><b class="res-t">El sistema solar</b><small>Ciencia · Simulación · 18 MB</small></div></div>
+            <div class="st ok"><i class="i" data-i="check"></i>Descargado</div>
+            <div class="extra">Paquete: El universo · simulación + ficha</div>
+            <button class="btn pri" data-go="sim"><i class="i" data-i="play"></i>Abrir simulación</button>
+          </div>
+          <div class="res" data-curso="Comunicación" data-tipo="Lectura" data-q="un relato de mi comunidad lectura cuento">
+            <div class="res-top" data-go="lectura"><span class="tile"><i class="i" data-i="file"></i></span><div><b class="res-t">Un relato de mi comunidad</b><small>Comunicación · Lectura · 2 MB</small></div></div>
+            <div class="st ok"><i class="i" data-i="check"></i>Descargado</div>
+            <button class="btn pri" data-go="lectura"><i class="i" data-i="play"></i>Abrir lectura</button>
+          </div>
+          <div class="res" data-curso="Comunicación" data-tipo="Audio" data-q="escucha el relato audio">
+            <div class="res-top" data-act="audio"><span class="tile"><i class="i" data-i="headphones"></i></span><div><b class="res-t">Escucha el relato</b><small>Comunicación · Audio · 6 MB</small></div></div>
+            <div class="st ok"><i class="i" data-i="check"></i>Descargado</div>
+            <button class="btn pri" data-act="audio"><i class="i" data-i="play"></i>Escuchar audio</button>
+          </div>
+          <div class="res" data-curso="Matemática" data-tipo="Actividad" data-q="áreas y perímetros areas perimetros matematica" id="ex-areas"></div>
+          <div class="res" data-curso="Sociales" data-tipo="Mapas y fotos" data-q="lima mapas y fotos sociales" id="ex-lima"></div>
+        </div>
+        <div class="card center small" id="ex-empty" style="display:none">Aún no hay recursos para este filtro.<br>Prueba con otro grado, curso o tipo.</div>
+      </div>
+    </section>
+
+    <!-- ================= DETALLE ================= -->
+    <section class="screen" id="s-detalle" data-net="off" data-tab="">
+      <div class="hdr"><div class="row"><button class="back" data-back aria-label="Atrás"><i class="i" data-i="back"></i></button>
+        <div class="grow"><h1>El sistema solar</h1><p class="sub">2.° de secundaria · Ciencia</p></div></div></div>
+      <div class="banner off"><i class="i" data-i="wifioff"></i>Sin conexión · usa lo descargado</div>
+      <div class="content">
+        <div class="sim-box" data-go="sim" style="cursor:pointer"><span class="lbl">Simulación ligera · vista previa</span>
+          <svg viewBox="0 0 300 140" id="prev-svg">
+            <ellipse cx="150" cy="76" rx="52" ry="24" fill="none" stroke="#5A6B8C" stroke-width="1"/>
+            <ellipse cx="150" cy="76" rx="102" ry="44" fill="none" stroke="#5A6B8C" stroke-width="1"/>
+            <circle cx="150" cy="76" r="17" fill="#F2BE4B"/>
+            <text x="150" y="98" fill="#E9EEF7" font-size="9" text-anchor="middle">Sol</text>
+            <circle id="prev-in" r="5" fill="#E07F55"/>
+            <g id="prev-earth"><circle r="8" fill="#5AA8EE"/><text y="18" fill="#E9EEF7" font-size="9" text-anchor="middle">Tierra</text></g>
+          </svg>
+        </div>
+        <div class="note green"><i class="i" data-i="check"></i><div><b>Descargado · listo sin internet</b>18 MB guardados en este celular.</div></div>
+        <p class="p">Explora los planetas y compara sus recorridos alrededor del Sol. Funciona en celulares básicos.</p>
+        <button class="btn pri" data-go="sim"><i class="i" data-i="play"></i>Abrir simulación</button>
+        <button class="btn sec" data-act="share-sistema"><i class="i" data-i="share"></i>Compartir sin internet</button>
+        <button class="btn sec" data-act="ficha-sistema"><i class="i" data-i="file"></i>Ver ficha para imprimir</button>
+        <div class="card">
+          <b style="font-size:12px;color:var(--ink)">Una ficha para todos</b>
+          <p class="small" style="margin-top:6px">PDF de 2 páginas · 1 MB incluido en los 18 MB. Puedes verlo ahora y llevarlo a imprimir después.</p>
+          <div style="border-top:1px solid var(--line);margin:9px 0"></div>
+          <p class="small">No necesitas una impresora conectada para abrirlo.</p>
+        </div>
+        <button class="btn sec" data-act="add-sistema" id="btn-add-sistema"><i class="i" data-i="plus"></i>Añadir a mi clase</button>
+        <p class="foot">Incluye simulación y ficha. Sin anuncios ni inicio de sesión.</p>
+      </div>
+    </section>
+
+    <!-- ================= MIS DESCARGAS ================= -->
+    <section class="screen" id="s-descargas" data-net="on" data-tab="descargas">
+      <div class="hdr"><h1>Mis descargas</h1><p class="sub">Solo se descarga con wifi</p></div>
+      <div class="banner on" id="dl-banner"><i class="i" data-i="wifi"></i>Wifi conectado · sin usar datos móviles</div>
+      <div class="content">
+        <div class="note blue" id="dl-summary"></div>
+        <div class="card" id="dl-areas"></div>
+        <div class="card" id="dl-lima"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:4px"><i class="i" data-i="check" style="font-size:18px;color:var(--green)"></i><h2 class="t" id="dl-count">8 recursos descargados</h2></div>
+        <button class="btn sec" data-go="guardados"><i class="i" data-i="folder"></i>Ver recursos guardados</button>
+        <div class="links" style="margin-top:6px"><span>Probar otros estados:</span>
+          <button data-act="cut-wifi">Simular corte de wifi</button>·
+          <button data-go="sinespacio">Sin espacio</button>·
+          <button data-go="nocompat">Archivo no compatible</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= COMPARTIR ================= -->
+    <section class="screen" id="s-compartir" data-net="off" data-tab="">
+      <div class="hdr"><div class="row"><button class="back" data-back aria-label="Atrás"><i class="i" data-i="back"></i></button>
+        <div class="grow"><h1>Compartir sin internet</h1><p class="sub">Envía archivos, no datos móviles</p></div></div></div>
+      <div class="banner off"><i class="i" data-i="wifioff"></i>Sin conexión · usa lo descargado</div>
+      <div class="content">
+        <div class="card">
+          <b style="font-size:12px;color:var(--ink)" id="sh-name">El sistema solar</b>
+          <p class="small" style="margin-top:6px" id="sh-meta">18 MB · incluye ficha imprimible<br>Descargado en este celular</p>
+        </div>
+        <h2 class="t">¿Cómo quieres enviarlo?</h2>
+        <div class="opts">
+          <button class="opt on" data-method="bt"><i class="i" data-i="bt"></i>Bluetooth</button>
+          <button class="opt" data-method="usb"><i class="i" data-i="usb"></i>USB</button>
+          <button class="opt" data-method="cel"><i class="i" data-i="phone"></i>Celular a<br>celular</button>
+        </div>
+        <div class="card"><h2 class="t" id="sh-title">Por Bluetooth</h2><div class="steps" id="sh-steps"></div></div>
+        <button class="btn pri" id="sh-go"><i class="i" data-i="bt"></i>Elegir celular</button>
+        <div class="note blue"><i class="i" data-i="shield"></i><div><b>No necesita internet</b>Puede tardar varios minutos. El archivo original se queda en tu celular.</div></div>
+        <p class="small">Otras formas de enviar<br>USB: conecta un cable, copia el archivo y ábrelo en el otro equipo.<br>Celular a celular: acerca los equipos, elige el receptor y acepta el archivo. Usa un enlace local, no comparte internet.</p>
+      </div>
+    </section>
+
+    <!-- ================= MENÚ ================= -->
+    <section class="screen" id="s-menu" data-net="off" data-tab="">
+      <div class="hdr"><h1>Menú</h1><p class="sub">Biblioteca Digital Sin Conexión</p></div>
+      <div class="banner off"><i class="i" data-i="wifioff"></i>Sin conexión · usa lo descargado</div>
+      <div class="content">
+        <button class="mitem" data-tabgo="inicio"><span class="tile"><i class="i" data-i="home"></i></span><span class="grow"><b>Inicio</b><span class="d">Ver tus recursos y el espacio del celular</span></span><i class="i" data-i="chevr"></i></button>
+        <button class="mitem" data-tabgo="explorar"><span class="tile"><i class="i" data-i="search"></i></span><span class="grow"><b>Explorar</b><span class="d">Buscar por grado, curso y tema</span></span><i class="i" data-i="chevr"></i></button>
+        <button class="mitem hl" data-tabgo="descargas"><span class="tile"><i class="i" data-i="download"></i></span><span class="grow"><b>Mis descargas</b><span class="d" id="menu-dl">8 recursos listos para abrir sin internet</span></span><i class="i" data-i="chevr"></i></button>
+        <button class="mitem" data-act="share-sistema"><span class="tile"><i class="i" data-i="share"></i></span><span class="grow"><b>Compartir sin internet</b><span class="d">Archivos por Bluetooth, USB<br>o de celular a celular</span></span><i class="i" data-i="chevr"></i></button>
+        <button class="mitem" data-tabgo="clase"><span class="tile"><i class="i" data-i="clase"></i></span><span class="grow"><b>Preparar clase</b><span class="d">Reunir y verificar tus recursos</span></span><i class="i" data-i="chevr"></i></button>
+        <div class="note blue"><i class="i" data-i="wifi"></i><div><b>Descarga solo con wifi</b>Luego abre y comparte sin internet. Compartes archivos, no tu conexión.</div></div>
+        <p class="foot">Sin registro. Sin anuncios. Sin usar tus datos.</p>
+        <div class="links"><span>Estados de ejemplo:</span>
+          <button data-go="sinespacio">Sin espacio</button>·
+          <button data-act="cut-wifi">Descarga en pausa</button>·
+          <button data-go="nocompat">No compatible</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PREPARAR CLASE ================= -->
+    <section class="screen" id="s-clase" data-net="off" data-tab="clase">
+      <div class="hdr"><h1>Preparar mi clase</h1><p class="sub">2.° B · 35 estudiantes</p></div>
+      <div class="banner off"><i class="i" data-i="wifioff"></i>Sin conexión · usa lo descargado</div>
+      <div class="content">
+        <div class="field"><label for="cl-name">Nombre de la clase</label><input id="cl-name" value="Exploramos el sistema solar" maxlength="40"></div>
+        <p class="small" style="color:var(--text)">Reúne tus recursos. Al verificarlos, la app los marca «listos sin internet».</p>
+        <div id="cl-list" style="display:flex;flex-direction:column;gap:10px"></div>
+        <button class="btn sec" data-act="add-res"><i class="i" data-i="plus"></i>Añadir recursos</button>
+        <div class="note green" id="cl-summary"></div>
+        <button class="btn sec" data-act="verify" id="cl-verify"><i class="i" data-i="shield"></i>Verificar de nuevo</button>
+        <button class="btn pri" data-act="enter-class" id="cl-enter"><i class="i" data-i="play"></i>Entrar con los 2 recursos listos</button>
+      </div>
+    </section>
+
+    <!-- ================= MODO CLASE ================= -->
+    <section class="screen darkscr" id="s-modo" data-net="off" data-tab="" data-dark="1">
+      <div class="hdr"><div class="row"><button class="back" data-back aria-label="Salir"><i class="i" data-i="back"></i></button>
+        <div class="grow"><h1>Modo clase</h1><p class="sub" id="mc-name">Exploramos el sistema solar</p></div></div></div>
+      <div class="banner"><i class="i" data-i="wifioff"></i>Sin conexión · usa lo descargado</div>
+      <div class="content" id="mc-content"></div>
+    </section>
+
+    <!-- ================= SIN ESPACIO ================= -->
+    <section class="screen" id="s-sinespacio" data-net="on" data-tab="">
+      <div class="hdr"><div class="row"><button class="back" data-back aria-label="Atrás"><i class="i" data-i="back"></i></button>
+        <div class="grow"><h1>Sin espacio</h1><p class="sub">La actualización no ha empezado</p></div></div></div>
+      <div class="banner on"><i class="i" data-i="wifi"></i>Wifi conectado · sin usar datos móviles</div>
+      <div class="content">
+        <div class="big-ic"><i class="i" data-i="drive"></i></div>
+        <h2 class="st-t">Libera un poco de espacio</h2>
+        <p class="p" style="font-size:11.5px">No se pudo actualizar «Lima: mapas y fotos». Otros archivos han ocupado espacio en el celular.</p>
+        <div class="card">
+          <b style="font-size:11.5px;color:var(--ink)" id="se-free">8 MB libres · se necesitan 34 MB</b>
+          <div class="bar"><i id="se-bar" style="width:98.6%"></i></div>
+          <p class="small" id="se-used">592 de 600 MB usados en el celular</p>
+          <p class="small" style="margin-top:8px" id="se-need">14 MB del recurso + 20 MB temporales. Libera al menos 26 MB para continuar.</p>
+        </div>
+        <div class="note green"><i class="i" data-i="check"></i><div><b>Tus recursos siguen a salvo</b>La versión de 12 MB está lista sin internet. No la borraremos para actualizar.</div></div>
+        <button class="btn pri" data-act="free-space"><i class="i" data-i="folder"></i>Elegir archivos para liberar</button>
+        <button class="btn sec" data-act="retry-space"><i class="i" data-i="refresh"></i>Ya liberé espacio: reintentar</button>
+        <p class="small">Tú decides qué borrar. También puedes mover archivos por USB antes de reintentar.</p>
+      </div>
+    </section>
+
+    <!-- ================= DESCARGA EN PAUSA ================= -->
+    <section class="screen" id="s-pausa" data-net="off" data-tab="">
+      <div class="hdr"><div class="row"><button class="back" data-back aria-label="Atrás"><i class="i" data-i="back"></i></button>
+        <div class="grow"><h1>Descarga en pausa</h1><p class="sub">Se perdió la conexión wifi</p></div></div></div>
+      <div class="banner off" id="pa-banner"><i class="i" data-i="wifioff"></i>Sin conexión · usa lo descargado</div>
+      <div class="content">
+        <div class="big-ic"><i class="i" data-i="wifioff"></i></div>
+        <h2 class="st-t">Tu avance está guardado</h2>
+        <p class="p" style="font-size:11.5px">La descarga se interrumpió. No está descargando ahora y no usará tus datos móviles.</p>
+        <div class="card">
+          <b style="font-size:13px;color:var(--ink)">Áreas y perímetros</b>
+          <p class="small" style="margin-top:3px">2.° · Matemática · 5 MB</p>
+          <div class="bar"><i id="pa-bar" style="width:60%"></i></div>
+          <p class="small" id="pa-txt">60 % guardado · 3 de 5 MB</p>
+          <p class="amber-t" style="margin-top:8px;font-weight:600" id="pa-left">Faltan 2 MB. Aún no está listo para abrir.</p>
+        </div>
+        <div class="note blue"><i class="i" data-i="wifi"></i><div><b>Continúa cuando tengas wifi</b><ol><li>Conéctate a una red wifi.</li><li>Vuelve a Mis descargas.</li><li>Toca «Continuar con wifi».</li></ol></div></div>
+        <button class="btn pri" data-act="wifi-settings"><i class="i" data-i="gear"></i>Abrir ajustes de wifi</button>
+        <button class="btn sec" data-act="to-descargas"><i class="i" data-i="back"></i>Volver a Mis descargas</button>
+        <p class="small">Mientras tanto, tus 8 recursos descargados siguen disponibles.</p>
+      </div>
+    </section>
+
+    <!-- ================= NO COMPATIBLE ================= -->
+    <section class="screen" id="s-nocompat" data-net="off" data-tab="">
+      <div class="hdr"><div class="row"><button class="back" data-back aria-label="Atrás"><i class="i" data-i="back"></i></button>
+        <div class="grow"><h1>No se puede abrir</h1><p class="sub">Este formato no funciona en tu celular</p></div></div></div>
+      <div class="banner off"><i class="i" data-i="wifioff"></i>Sin conexión · usa lo descargado</div>
+      <div class="content">
+        <div class="big-ic"><i class="i" data-i="filealert"></i></div>
+        <h2 class="st-t">El archivo está, pero no abre</h2>
+        <p class="p" style="font-size:11.5px">Este celular no puede reproducir el formato del video. No es una falla de internet.</p>
+        <div class="card">
+          <b style="font-size:13px;color:var(--ink)">El clima de Lima</b>
+          <p class="small" style="margin-top:4px">Sociales · Video MKV · 24 MB<br>Recibido por Bluetooth</p>
+          <p class="amber-t" style="margin-top:8px">Guardado · no compatible</p>
+        </div>
+        <div class="note green"><i class="i" data-i="file"></i><div><b>Sigue la clase con una ficha</b>«Lima: mapas y fotos» tiene una ficha de 2 MB incluida en su versión guardada de 12 MB.</div></div>
+        <button class="btn pri" data-act="ficha-lima"><i class="i" data-i="file"></i>Abrir ficha de Lima</button>
+        <button class="btn sec" data-act="share-clima"><i class="i" data-i="share"></i>Compartir video a otro equipo</button>
+        <div class="card small">Más tarde, pide una versión MP4 liviana y recíbela por Bluetooth o USB. La ficha puede verse ahora e imprimirse después.</div>
+      </div>
+    </section>
+
+    <!-- ================= SIMULACIÓN ================= -->
+    <section class="screen darkscr" id="s-sim" data-net="off" data-tab="" data-dark="1">
+      <div class="hdr"><div class="row"><button class="back" data-back aria-label="Atrás"><i class="i" data-i="back"></i></button>
+        <div class="grow"><h1>Simulación</h1><p class="sub">El sistema solar · funciona sin internet</p></div></div></div>
+      <div class="content">
+        <div class="sim-box" style="background:#0B1324">
+          <svg viewBox="0 0 320 300" id="sim-svg"></svg>
+        </div>
+        <div class="dcard" id="sim-info" style="font-size:12.5px"><b>Toca un planeta</b> para ver cuánto tarda en dar una vuelta al Sol.</div>
+        <div class="row-b" style="font-size:11.5px;color:#C9D3E6"><span>Días en la Tierra: <b id="sim-days" style="color:#fff">0</b></span><span>Velocidad</span></div>
+        <div class="seg" id="sim-speed"><button data-sp="1">1x</button><button data-sp="3" class="on">3x</button><button data-sp="8">8x</button></div>
+        <button class="btn pri" id="sim-play"><i class="i" data-i="pause"></i>Pausar</button>
+      </div>
+    </section>
+
+    <!-- ================= LECTURA ================= -->
+    <section class="screen" id="s-lectura" data-net="off" data-tab="">
+      <div class="hdr"><div class="row"><button class="back" data-back aria-label="Atrás"><i class="i" data-i="back"></i></button>
+        <div class="grow"><h1>Un relato de mi comunidad</h1><p class="sub">Lectura · 2 MB · sin internet</p></div></div></div>
+      <div class="banner off"><i class="i" data-i="wifioff"></i>Sin conexión · usa lo descargado</div>
+      <div class="content">
+        <div class="seg"><button data-fs="-1">A−</button><button data-fs="1">A+</button></div>
+        <div class="reading" id="read-box" style="font-size:13px">
+          <h3>La escalera de colores</h3>
+          <p>En lo alto del cerro, donde termina la pista y empiezan las escaleras, vivía Rosa con su abuelo. Cada mañana bajaban juntos ciento veinte escalones para llegar al colegio.</p>
+          <p>Un día, los vecinos decidieron pintar la escalera. Cada familia eligió un color y un escalón. Los niños dibujaron flores, cóndores y el sol; los mayores contaron historias mientras se secaba la pintura.</p>
+          <p>Cuando terminaron, la escalera parecía un arcoíris que bajaba del cerro. Desde entonces, nadie se cansa al subir: todos se detienen a mirar el escalón de su familia y saludan al de los vecinos.</p>
+          <p>«Lo que construimos juntos —dijo el abuelo— dura más que lo que hacemos solos».</p>
+        </div>
+        <div class="card"><b style="font-size:12px;color:var(--ink)">Para conversar</b>
+          <p class="small" style="margin-top:6px;color:var(--text)">1. ¿Qué problema tenía la comunidad?<br>2. ¿Cómo lo resolvieron juntos?<br>3. ¿Qué lugar de tu barrio te gustaría mejorar?</p></div>
+        <button class="btn sec" data-act="add-relato"><i class="i" data-i="plus"></i>Añadir a mi clase</button>
+      </div>
+    </section>
+
+    <!-- ================= FICHA ================= -->
+    <section class="screen" id="s-ficha" data-net="off" data-tab="">
+      <div class="hdr"><div class="row"><button class="back" data-back aria-label="Atrás"><i class="i" data-i="back"></i></button>
+        <div class="grow"><h1 id="fi-title">Ficha para imprimir</h1><p class="sub" id="fi-sub">PDF · 2 páginas · 1 MB</p></div></div></div>
+      <div class="banner off"><i class="i" data-i="wifioff"></i>Sin conexión · usa lo descargado</div>
+      <div class="content" id="fi-content"></div>
+    </section>
+
+    <!-- ================= RECURSOS GUARDADOS ================= -->
+    <section class="screen" id="s-guardados" data-net="off" data-tab="descargas">
+      <div class="hdr"><div class="row"><button class="back" data-back aria-label="Atrás"><i class="i" data-i="back"></i></button>
+        <div class="grow"><h1>Recursos guardados</h1><p class="sub">Se abren sin internet</p></div></div></div>
+      <div class="banner off"><i class="i" data-i="wifioff"></i>Sin conexión · usa lo descargado</div>
+      <div class="content" id="gu-list"></div>
+    </section>
+
+  </div>
+
+  <nav class="nav" id="nav">
+    <button data-tabgo="inicio"><i class="i" data-i="home"></i>Inicio</button>
+    <button data-tabgo="explorar"><i class="i" data-i="search"></i>Explorar</button>
+    <button data-tabgo="descargas"><i class="i" data-i="download"></i>Descargas</button>
+    <button data-tabgo="clase"><i class="i" data-i="clase"></i>Mi clase</button>
+  </nav>
+  <div class="homebar"><b></b></div>
+
+  <div class="overlay" id="overlay"><div class="sheet" id="sheet"></div></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<!-- ===== Panel de la presentación (solo se ve en PC) ===== -->
+<aside class="panel" id="panel">
+  <h3>AulaNet · Prototipo</h3>
+  <p>Biblioteca Digital Sin Conexión. Funciona sin internet: todo está dentro de este archivo. Usa el celular o salta a una pantalla:</p>
+  <h4>Pantallas</h4>
+  <button data-jump="inicio">Inicio</button>
+  <button data-jump="explorar">Explorar</button>
+  <button data-jump="detalle">Detalle del recurso</button>
+  <button data-jump="descargas">Mis descargas</button>
+  <button data-jump="compartir">Compartir sin internet</button>
+  <button data-jump="menu">Menú</button>
+  <button data-jump="clase">Preparar clase</button>
+  <button data-jump="modo">Modo clase</button>
+  <h4>Estados</h4>
+  <button data-jump="sinespacio">Sin espacio</button>
+  <button data-jump="pausa">Descarga en pausa</button>
+  <button data-jump="nocompat">Archivo no compatible</button>
+  <h4>Demo</h4>
+  <button data-jump="reset">↺ Reiniciar demo</button>
+</aside>
+
+<script>
+(function(){
+"use strict";
+var $=function(s,r){return (r||document).querySelector(s)};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+function ic(n){return '<i class="i"><svg><use href="#i-'+n+'"/></svg></i>'}
+function paintIcons(root){$$('i.i[data-i]',root).forEach(function(el){el.innerHTML='<svg><use href="#i-'+el.getAttribute('data-i')+'"/></svg>'})}
+paintIcons(document);
+
+/* ---------------- Estado ---------------- */
+var R={
+  sistema:{t:'El sistema solar',meta:'Simulación y ficha · 18 MB',mb:18,ic:'orbit',kind:'sim',curso:'Ciencia'},
+  relato:{t:'Un relato de mi comunidad',meta:'Lectura · 2 MB',mb:2,ic:'file',kind:'lectura',curso:'Comunicación'},
+  audio:{t:'Escucha el relato',meta:'Audio · 6 MB',mb:6,ic:'headphones',kind:'audio',curso:'Comunicación'},
+  areas:{t:'Áreas y perímetros',meta:'Actividad · 5 MB',mb:5,ic:'shapes',kind:'actividad',curso:'Matemática'},
+  lima:{t:'Lima: mapas y fotos',meta:'Mapas y fotos · 12 MB',mb:12,ic:'map',kind:'mapa',curso:'Sociales'},
+  fracciones:{t:'Fracciones en la cocina',meta:'Actividad · 3 MB',mb:3,ic:'shapes',kind:'otro',curso:'Matemática'},
+  cuerpo:{t:'El cuerpo humano',meta:'Lectura · 4 MB',mb:4,ic:'book',kind:'otro',curso:'Ciencia'},
+  poemas:{t:'Poemas del Perú',meta:'Audio · 7 MB',mb:7,ic:'headphones',kind:'audio2',curso:'Comunicación'}
+};
+var S;
+function initState(){
+  S={
+    areas:{status:'idle',pct:60,user:false},     // idle | downloading | paused | done
+    lima:{status:'paused',mb:4,total:14,updated:false},
+    clase:[{id:'sistema',v:true},{id:'relato',v:true},{id:'areas',v:false}],
+    freedMB:0, freedItems:{}, wifiFixed:false,
+    shareFile:'sistema', method:'bt',
+    mc:0
+  };
+}
+initState();
+function downloaded(id){return id==='areas'? S.areas.status==='done' : true}
+
+/* ---------------- Navegación ---------------- */
+var phone=$('#phone'), stack=['inicio'], cur='inicio';
+var NAV_HIDE={modo:1,sim:1,sinespacio:1,pausa:1,nocompat:1};
+function show(id,dir){
+  var el=$('#s-'+id); if(!el) return;
+  $$('.screen').forEach(function(s){s.classList.remove('active','fromleft')});
+  el.classList.add('active'); if(dir==='back') el.classList.add('fromleft');
+  el.scrollTop=0; cur=id;
+  var net=el.getAttribute('data-net');
+  if(id==='pausa' && S.wifiFixed) net='on';
+  $('#sb-net').innerHTML='<svg><use href="#i-'+(net==='on'?'wifi':'wifioff')+'"/></svg>';
+  phone.classList.toggle('dark',!!el.getAttribute('data-dark'));
+  phone.classList.toggle('nonav',!!NAV_HIDE[id]);
+  var tab=el.getAttribute('data-tab');
+  $$('#nav button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-tabgo')===tab)});
+  $$('#panel button').forEach(function(b){b.classList.toggle('cur',b.getAttribute('data-jump')===id)});
+  closeSheet();
+  onEnter(id);
+}
+function go(id){ if(id===cur) return; stack.push(id); show(id); }
+function back(){ if(stack.length>1){stack.pop(); show(stack[stack.length-1],'back');} else show('inicio','back'); }
+function tab(id){ stack=[id]; show(id); }
+
+function onEnter(id){
+  if(id==='descargas'){ if(S.areas.status==='idle'){S.areas.status='downloading'} renderDescargas(); }
+  if(id==='explorar') renderExplorar();
+  if(id==='clase') renderClase();
+  if(id==='modo') renderModo();
+  if(id==='guardados') renderGuardados();
+  if(id==='pausa') renderPausa();
+  if(id==='sinespacio') renderEspacio();
+  if(id==='compartir') renderShare();
+  if(id==='sim') simStart(); else simStop();
+  if(id==='detalle') $('#btn-add-sistema').innerHTML = inClase('sistema') ? ic('tick')+'Ya está en tu clase' : ic('plus')+'Añadir a mi clase';
+}
+
+/* ---------------- Toast y hojas ---------------- */
+var tt;
+function toast(msg){var t=$('#toast');t.innerHTML=msg;t.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('show')},2600)}
+function openSheet(html){var s=$('#sheet');s.innerHTML='<div class="grab"></div>'+html;paintIcons(s);$('#overlay').classList.add('show')}
+function closeSheet(){$('#overlay').classList.remove('show');clearInterval(sheetTimer)}
+var sheetTimer;
+$('#overlay').addEventListener('click',function(e){if(e.target.id==='overlay')closeSheet()});
+
+/* ---------------- Descargas (simulación) ---------------- */
+setInterval(function(){
+  var ch=false;
+  if(S.areas.status==='downloading'){ S.areas.pct=Math.min(100,S.areas.pct+2); ch=true;
+    if(S.areas.pct>=100){S.areas.status='done'; toast('«Áreas y perímetros» se descargó. Ya está lista sin internet.');}
+  }
+  if(S.lima.status==='downloading'){ S.lima.mb=Math.min(S.lima.total,+(S.lima.mb+0.5).toFixed(1)); ch=true;
+    if(S.lima.mb>=S.lima.total){S.lima.status='done';S.lima.updated=true;toast('«Lima: mapas y fotos» se actualizó a 14 MB.');}
+  }
+  if(ch){ if(cur==='descargas')renderDescargas(); if(cur==='explorar')renderExplorar(); }
+},500);
+
+function mbOf(p){return (5*p/100).toFixed(1).replace('.0','').replace('.',',')}
+function countDl(){return 8+(S.areas.status==='done'?1:0)}
+
+function renderDescargas(){
+  var a=S.areas,l=S.lima,d=0,p=0;
+  [a,l].forEach(function(x){if(x.status==='downloading'||x.status==='idle')d++; if(x.status==='paused')p++;});
+  var sum = (d||p) ? (d+' descargando · '+p+' en pausa') : 'Todo está descargado';
+  $('#dl-summary').innerHTML=ic('wifi')+'<div><b>'+sum+'</b>'+((d||p)?'Si el wifi se corta, conservamos el avance.':'Ya puedes abrir todo sin internet.')+'</div>';
+  // Áreas
+  var h='<b style="font-size:14px;color:var(--ink)">Áreas y perímetros</b><p class="small" style="margin-top:3px">2.° · Matemática · 5 MB</p>';
+  if(a.status==='done'){
+    h+='<div class="st ok" style="margin:10px 0">'+ic('check')+'Descargado · listo sin internet</div><button class="btn pri" data-act="open-areas">'+ic('play')+'Abrir actividad</button>';
+  }else{
+    var lab = (a.status==='downloading'||a.status==='idle') ? '<b class="blue" style="font-size:11.5px">Descargando con wifi · '+a.pct+' %</b>'
+            : '<b class="blue" style="font-size:11.5px">En pausa · '+(a.user?'pausada por ti':'se cortó el wifi')+'</b>';
+    h+='<div style="margin-top:10px">'+lab+'</div><div class="bar"><i style="width:'+a.pct+'%"></i></div><p class="small">'+mbOf(a.pct)+' de 5 MB · faltan '+mbOf(100-a.pct)+' MB</p>';
+    h+= (a.status==='paused') ? '<button class="btn sec" style="margin-top:10px" data-act="resume-areas">'+ic('wifi')+'Continuar con wifi</button>'
+                              : '<button class="btn sec" style="margin-top:10px" data-act="pause-areas">'+ic('pause')+'Pausar descarga</button>';
+  }
+  $('#dl-areas').innerHTML=h;
+  // Lima
+  var pl=Math.round(l.mb/l.total*100), mbt=String(l.mb).replace('.',',');
+  h='<b style="font-size:14px;color:var(--ink)">Lima: mapas y fotos</b><p class="small" style="margin-top:3px">Actualización · 14 MB</p>';
+  if(l.status==='done'){
+    h+='<div class="st ok" style="margin:10px 0">'+ic('check')+'Actualizado · listo sin internet</div><button class="btn pri" data-act="ficha-lima">'+ic('map')+'Abrir mapas y fotos</button>';
+  }else{
+    h+='<div style="margin-top:10px"><b class="blue" style="font-size:11.5px">'+(l.status==='downloading'?'Actualizando con wifi · '+pl+' %':'En pausa · pausada por ti')+'</b></div><div class="bar"><i style="width:'+pl+'%"></i></div><p class="small">'+mbt+' de 14 MB · avance guardado</p>';
+    h+= l.status==='downloading' ? '<button class="btn sec" style="margin-top:10px" data-act="pause-lima">'+ic('pause')+'Pausar descarga</button>'
+                                 : '<button class="btn sec" style="margin-top:10px" data-act="resume-lima">'+ic('wifi')+'Continuar con wifi</button>';
+    h+='<p class="small" style="margin-top:9px">La versión de 12 MB sigue lista para usar.</p>';
+  }
+  $('#dl-lima').innerHTML=h;
+  $('#dl-count').textContent=countDl()+' recursos descargados';
+  $('#menu-dl').textContent=countDl()+' recursos listos para abrir sin internet';
+  $('#ini-count').textContent=countDl()+' recursos';
+}
+
+/* ---------------- Explorar ---------------- */
+function renderExplorar(){
+  var a=S.areas,h='<div class="res-top"><span class="tile">'+ic('shapes')+'</span><div><b class="res-t">Áreas y perímetros</b><small>Matemática · Actividad · 5 MB</small></div></div>';
+  if(a.status==='idle') h+='<div class="st go">'+ic('download')+'Descargar</div><button class="btn sec" data-act="dl-areas">'+ic('download')+'Descargar con wifi</button>';
+  else if(a.status==='done') h+='<div class="st ok">'+ic('check')+'Descargado</div><button class="btn pri" data-act="open-areas">'+ic('play')+'Abrir actividad</button>';
+  else h+='<div class="st go">'+ic('download')+(a.status==='paused'?'En pausa · ':'Descargando · ')+a.pct+' %</div><div class="bar" style="margin:0"><i style="width:'+a.pct+'%"></i></div><button class="btn sec" data-tabgo="descargas">'+ic('download')+'Ver en Mis descargas</button>';
+  $('#ex-areas').innerHTML=h;
+  var l=S.lima; h='<div class="res-top" data-act="ficha-lima"><span class="tile">'+ic('map')+'</span><div><b class="res-t">Lima: mapas y fotos</b><small>Sociales · Mapas y fotos · '+(l.updated?'14':'14')+' MB</small></div></div>';
+  if(l.updated) h+='<div class="st ok">'+ic('check')+'Descargado · actualizado</div><button class="btn pri" data-act="ficha-lima">'+ic('play')+'Abrir mapas y fotos</button>';
+  else h+='<div class="st go">'+ic('refresh')+'Actualizar</div><div class="extra">Versión guardada: 12 MB. Sigue disponible sin internet.</div><button class="btn sec" data-act="update-lima">'+ic('download')+'Actualizar con wifi</button>';
+  $('#ex-lima').innerHTML=h;
+  filterExplorar();
+}
+function filterExplorar(){
+  var q=$('#q').value.trim().toLowerCase(), c=$('#f-curso').value, t=$('#f-tipo').value, g=$('#f-grado').value, n=0;
+  $$('#ex-list .res').forEach(function(r){
+    var ok = g==='2.°' && (c==='Todos'||r.getAttribute('data-curso')===c) && (t==='Todos'||r.getAttribute('data-tipo')===t) && (!q||r.getAttribute('data-q').indexOf(q)>=0);
+    r.style.display=ok?'':'none'; if(ok)n++;
+  });
+  $('#ex-count').textContent=n+' recurso'+(n===1?'':'s')+' · '+g+' de secundaria';
+  $('#ex-empty').style.display=n?'none':'block';
+}
+['#q','#f-curso','#f-tipo','#f-grado'].forEach(function(s){$(s).addEventListener('input',filterExplorar);$(s).addEventListener('change',filterExplorar)});
+
+/* ---------------- Preparar clase ---------------- */
+function inClase(id){return S.clase.some(function(x){return x.id===id})}
+function renderClase(){
+  var h='',ready=0,mb=0;
+  S.clase.forEach(function(it,i){
+    var r=R[it.id], pill;
+    if(it.v){pill='<div class="pill ok">'+ic('shield')+'Verificado · listo sin internet</div>';ready++;mb+=r.mb;}
+    else if(!downloaded(it.id)) pill='<div class="pill wait">'+ic('clock')+'Pendiente · falta descargar</div>';
+    else pill='<div class="pill chk">'+ic('shield')+'Descargado · toca «Verificar de nuevo»</div>';
+    h+='<div class="citem"><div class="top">'+ic('check')+'<div class="grow"><b>'+r.t+'</b><small>'+r.meta+'</small></div><button class="xbtn" data-rm="'+i+'" aria-label="Quitar">'+ic('x')+'</button></div>'+pill+'</div>';
+  });
+  if(!S.clase.length) h='<div class="card small center">Aún no hay recursos. Toca «Añadir recursos».</div>';
+  $('#cl-list').innerHTML=h;
+  var pend=S.clase.length-ready;
+  $('#cl-summary').innerHTML=ic('check')+'<div><b>'+ready+' de '+S.clase.length+' listos · '+mb+' MB guardados</b>'+
+     (pend? (pend===1?'El pendiente no se abrirá en modo clase. Descárgalo cuando tengas wifi.':'Los pendientes no se abrirán en modo clase. Descárgalos cuando tengas wifi.') : 'Todo listo para usar sin internet.')+'</div>';
+  $('#cl-summary').className='note '+(pend?'green':'green');
+  var b=$('#cl-enter'); b.disabled=!ready;
+  b.innerHTML=ic('play')+(ready===1?'Entrar con el recurso listo':'Entrar con los '+ready+' recursos listos');
+}
+$('#cl-list').addEventListener('click',function(e){var x=e.target.closest('[data-rm]');if(!x)return;var it=S.clase.splice(+x.getAttribute('data-rm'),1)[0];renderClase();toast('Quitaste «'+R[it.id].t+'» de la clase.')});
+
+function verify(){
+  var b=$('#cl-verify'); b.disabled=true; b.innerHTML='<span class="spin" style="width:16px;height:16px;border-width:2px;margin:0"></span>Verificando…';
+  setTimeout(function(){
+    S.clase.forEach(function(it){it.v=downloaded(it.id)});
+    b.disabled=false; b.innerHTML=ic('shield')+'Verificar de nuevo'; renderClase();
+    var p=S.clase.filter(function(x){return !x.v}).length;
+    toast(p? 'Verificado. '+p+' recurso'+(p>1?'s':'')+' aún falta'+(p>1?'n':'')+' descargar.' : 'Todo verificado: listo sin internet.');
+  },1300);
+}
+function addResSheet(){
+  var h='<h3>Añadir recursos</h3><p class="small">Solo puedes usar en clase lo que ya está en tu celular.</p><div class="stack">';
+  Object.keys(R).forEach(function(k){ if(k==='lima'&&false)return;
+    var r=R[k],inn=inClase(k);
+    h+='<button class="dev" data-addres="'+k+'" '+(inn?'disabled style="opacity:.5"':'')+'><span class="tile">'+ic(r.ic)+'</span><span class="grow"><b>'+r.t+'</b><small>'+r.curso+' · '+r.meta+(downloaded(k)?'':' · falta descargar')+'</small></span>'+(inn?ic('tick'):ic('plus'))+'</button>';
+  });
+  openSheet(h+'</div>');
+}
+function addRes(k){ if(inClase(k)){toast('«'+R[k].t+'» ya está en tu clase.');return} S.clase.push({id:k,v:false}); toast('Añadiste «'+R[k].t+'». Toca «Verificar de nuevo».'); }
+
+/* ---------------- Modo clase ---------------- */
+var tour={run:false};
+function readyList(){return S.clase.filter(function(x){return x.v})}
+function renderModo(){
+  stopTour();
+  var list=readyList(); $('#mc-name').textContent=$('#cl-name').value||'Mi clase';
+  if(!list.length){$('#mc-content').innerHTML='<div class="dcard">No hay recursos verificados. Vuelve a «Preparar mi clase».</div>';return}
+  if(S.mc>=list.length)S.mc=0;
+  var it=list[S.mc], r=R[it.id], nxt=list[S.mc+1];
+  var h='<div class="row-b" style="font-size:11px;color:#DCE3EF"><b>Recurso '+(S.mc+1)+' de '+list.length+'</b><span style="display:flex;gap:5px;align-items:center">'+ic('shield')+'Listo sin internet</span></div>';
+  if(r.kind==='sim'){
+    h+='<h2 class="q">¿Por qué dura un año?</h2>'+
+      '<svg viewBox="0 0 300 150" style="width:100%;display:block" id="mc-svg">'+
+      '<text x="18" y="14" fill="#C9D3E6" font-size="9">Una vuelta alrededor del Sol = 1 año</text>'+
+      '<text x="282" y="14" fill="#F2BE4B" font-size="10" font-weight="700" text-anchor="end" id="mc-day"></text>'+
+      '<ellipse cx="150" cy="85" rx="60" ry="24" fill="none" stroke="#6A7A99" stroke-width="1"/>'+
+      '<ellipse cx="150" cy="85" rx="108" ry="44" fill="none" stroke="#6A7A99" stroke-width="1"/>'+
+      '<path id="mc-trail" fill="none" stroke="#5AA8EE" stroke-width="2.5" stroke-linecap="round" d=""/>'+
+      '<circle cx="150" cy="85" r="17" fill="#F2BE4B"/><text x="150" y="107" fill="#E9EEF7" font-size="9" text-anchor="middle">Sol</text>'+
+      '<circle cx="93" cy="93" r="5" fill="#E07F55"/>'+
+      '<g id="mc-earth" transform="translate(258,85)"><circle r="8.5" fill="#5AA8EE"/><text y="19" fill="#E9EEF7" font-size="9" text-anchor="middle">Tierra</text></g></svg>'+
+      '<div class="dcard"><p style="font-size:14.5px;color:#fff;margin:0">La Tierra gira alrededor del Sol. Una vuelta completa tarda aproximadamente 365 días: un año.</p><p>No es lo mismo que girar sobre sí misma. Ese giro tarda 24 horas: un día.</p></div>'+
+      '<div class="pareja"><small>CONVERSEN EN PAREJAS</small><b>¿Qué movimiento produce el día y la noche?</b></div>'+
+      '<button class="btn pri" id="mc-tour">'+ic('play')+'Iniciar recorrido de la Tierra</button>';
+  }else if(r.kind==='lectura'){
+    h+='<h2 class="q">Un relato de mi comunidad</h2><div class="dcard"><p style="font-size:14px;color:#fff;margin:0">«En lo alto del cerro, donde termina la pista y empiezan las escaleras, vivía Rosa con su abuelo…»</p><p id="mc-more" style="display:none">Los vecinos pintaron juntos la escalera: cada familia eligió un color y un escalón. Desde entonces, nadie se cansa al subir. «Lo que construimos juntos dura más que lo que hacemos solos».</p></div>'+
+      '<div class="pareja"><small>CONVERSEN EN PAREJAS</small><b>¿Qué lugar de su barrio podrían mejorar juntos?</b></div>'+
+      '<button class="btn pri" data-act="mc-more">'+ic('book')+'Leer el relato completo</button>';
+  }else if(r.kind==='actividad'){
+    h+='<h2 class="q">¿Cuánto mide el huerto del colegio?</h2>'+
+      '<svg viewBox="0 0 300 150" style="width:100%;display:block"><rect x="60" y="25" width="180" height="100" rx="3" fill="#24563A" stroke="#7FD49B" stroke-width="2"/><text x="150" y="18" fill="#E9EEF7" font-size="11" text-anchor="middle">8 m</text><text x="250" y="80" fill="#E9EEF7" font-size="11">5 m</text>'+
+      '<g fill="#7FD49B" opacity=".6"><circle cx="95" cy="55" r="5"/><circle cx="130" cy="90" r="5"/><circle cx="170" cy="55" r="5"/><circle cx="205" cy="95" r="5"/></g></svg>'+
+      '<div class="pareja"><small>TRABAJEN EN PAREJAS</small><b>Calculen el área y el perímetro del huerto.</b></div>'+
+      '<div class="dcard" id="mc-ans" style="display:none"><p style="color:#fff;margin:0;font-size:14px">Área = 8 × 5 = <b>40 m²</b><br>Perímetro = 8 + 5 + 8 + 5 = <b>26 m</b></p></div>'+
+      '<button class="btn pri" data-act="mc-ans">'+ic('check')+'Mostrar respuesta</button>';
+  }else if(r.kind==='audio'||r.kind==='audio2'){
+    h+='<h2 class="q">'+r.t+'</h2><div class="dcard"><div class="row-b"><span>'+ic('headphones')+'</span><span style="flex:1;margin:0 10px"><span class="bar" style="display:block;background:#3A4C6E;margin:0"><i id="mc-aud" style="width:0%"></i></span></span><span id="mc-audt">0:00</span></div></div>'+
+      '<div class="pareja"><small>DESPUÉS DE ESCUCHAR</small><b>¿Qué sonidos de tu comunidad reconociste?</b></div>'+
+      '<button class="btn pri" data-act="mc-audio">'+ic('play')+'Reproducir audio</button>';
+  }else{
+    h+='<h2 class="q">'+r.t+'</h2><div class="dcard"><p style="margin:0;color:#fff">'+r.curso+' · '+r.meta+'</p><p>Recurso guardado en el celular. Ábrelo y proyéctalo o compártelo con tus estudiantes.</p></div>';
+  }
+  h+= nxt ? '<button class="btn dark" data-act="mc-next">'+ic('arrowr')+'Siguiente: '+kindName(R[nxt.id])+'</button>'
+          : '<button class="btn dark" data-act="mc-end">'+ic('tick')+'Terminar clase</button>';
+  if(S.mc>0) h+='<button class="btn dark" data-act="mc-prev" style="border-style:dashed">'+ic('back')+'Recurso anterior</button>';
+  h+='<p class="foot">Sin descargas ni avisos durante la clase.</p>';
+  $('#mc-content').innerHTML=h;
+  var tb=$('#mc-tour'); if(tb) tb.addEventListener('click',startTour);
+  setEarth(0);
+}
+function kindName(r){return {sim:'simulación',lectura:'lectura',actividad:'actividad',audio:'audio',audio2:'audio',mapa:'mapas',otro:r.t.toLowerCase()}[r.kind]}
+function ellPt(a,cx,cy,rx,ry){return [cx+rx*Math.cos(a), cy-ry*Math.sin(a)]}
+function setEarth(frac){
+  var e=$('#mc-earth'); if(!e)return;
+  var p=ellPt(frac*2*Math.PI,150,85,108,44); e.setAttribute('transform','translate('+p[0].toFixed(1)+','+p[1].toFixed(1)+')');
+  var d='',n=Math.max(1,Math.round(frac*120));
+  if(frac>0){for(var k=0;k<=n;k++){var q=ellPt(frac*2*Math.PI*k/n,150,85,108,44);d+=(k?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)}}
+  $('#mc-trail').setAttribute('d',d);
+  $('#mc-day').textContent= frac>0 ? 'Día '+Math.round(frac*365)+' de 365' : '';
+}
+function startTour(){
+  if(tour.run)return; tour.run=true; var b=$('#mc-tour'); b.disabled=true; b.innerHTML=ic('orbit')+'La Tierra está dando la vuelta…';
+  var t0=performance.now(),D=7000;
+  function step(t){ if(!tour.run)return; var f=Math.min(1,(t-t0)/D); setEarth(f);
+    if(f<1) tour.raf=requestAnimationFrame(step);
+    else{ tour.run=false; b.disabled=false; b.innerHTML=ic('refresh')+'Repetir recorrido'; toast('¡365 días! La Tierra dio una vuelta completa al Sol: eso es un año.'); }
+  }
+  tour.raf=requestAnimationFrame(step);
+}
+function stopTour(){tour.run=false;cancelAnimationFrame(tour.raf)}
+
+/* ---------------- Vista previa del detalle ---------------- */
+var prevA=0,prevB=0,lastT=0;
+function loop(t){
+  var dt=lastT? Math.min(50,t-lastT):16; lastT=t;
+  if(cur==='detalle'){
+    prevA+=dt*0.0011; prevB+=dt*0.0005;
+    var p=ellPt(prevA,150,76,52,24), q=ellPt(prevB,150,76,102,44);
+    $('#prev-in').setAttribute('cx',p[0]); $('#prev-in').setAttribute('cy',p[1]);
+    $('#prev-earth').setAttribute('transform','translate('+q[0].toFixed(1)+','+q[1].toFixed(1)+')');
+  }
+  if(cur==='sim' && sim.on){ simStep(dt) }
+  requestAnimationFrame(loop);
+}
+(function(){var q=ellPt(prevB+0.5,150,76,102,44);$('#prev-earth').setAttribute('transform','translate('+q[0]+','+q[1]+')');})();
+requestAnimationFrame(loop);
+
+/* ---------------- Simulación completa ---------------- */
+var PL=[
+  {n:'Mercurio',c:'#B9A28C',r:4,rx:42,ry:30,days:88,txt:'Es el más cercano al Sol. Da una vuelta en solo 88 días.'},
+  {n:'Venus',c:'#E7B46A',r:6,rx:66,ry:47,days:225,txt:'Es el planeta más caliente. Su vuelta al Sol dura 225 días.'},
+  {n:'Tierra',c:'#5AA8EE',r:7,rx:94,ry:67,days:365,txt:'Nuestro planeta. Una vuelta al Sol dura 365 días: un año. Girar sobre sí misma dura 24 horas: un día.'},
+  {n:'Marte',c:'#E07F55',r:5,rx:126,ry:90,days:687,txt:'El planeta rojo. Tarda 687 días: casi dos años terrestres.'}
+];
+var sim={on:true,speed:3,days:0,built:false};
+function simBuild(){
+  if(sim.built)return; sim.built=true;
+  var s='<g fill="#fff">';for(var i=0;i<40;i++){s+='<circle cx="'+(Math.random()*320).toFixed(0)+'" cy="'+(Math.random()*300).toFixed(0)+'" r="'+(Math.random()*.9+.3).toFixed(1)+'" opacity="'+(Math.random()*.6+.2).toFixed(2)+'"/>'}s+='</g>';
+  PL.forEach(function(p){s+='<ellipse cx="160" cy="150" rx="'+p.rx+'" ry="'+p.ry+'" fill="none" stroke="#3E4F70" stroke-width="1"/>'});
+  s+='<circle cx="160" cy="150" r="22" fill="#F2BE4B" opacity=".25"/><circle cx="160" cy="150" r="16" fill="#F2BE4B"/><text x="160" y="181" fill="#E9EEF7" font-size="9" text-anchor="middle">Sol</text>';
+  PL.forEach(function(p,i){s+='<g id="pl'+i+'" data-pl="'+i+'" style="cursor:pointer"><circle r="14" fill="transparent"/><circle r="'+p.r+'" fill="'+p.c+'"/><text y="'+(p.r+11)+'" fill="#DCE3EF" font-size="8.5" text-anchor="middle">'+p.n+'</text></g>'});
+  $('#sim-svg').innerHTML=s;
+  $('#sim-svg').addEventListener('click',function(e){var g=e.target.closest('[data-pl]');if(!g)return;var p=PL[+g.getAttribute('data-pl')];
+    $('#sim-info').innerHTML='<b style="color:'+p.c+'">'+p.n+'</b> · vuelta al Sol: <b>'+p.days+' días</b><p>'+p.txt+'</p>';});
+  simDraw();
+}
+function simDraw(){PL.forEach(function(p,i){var a=sim.days/p.days*2*Math.PI+i*1.3,q=ellPt(a,160,150,p.rx,p.ry);$('#pl'+i).setAttribute('transform','translate('+q[0].toFixed(1)+','+q[1].toFixed(1)+')')});$('#sim-days').textContent=Math.floor(sim.days)+(sim.days>=365?' ('+Math.floor(sim.days/365)+' año'+(sim.days>=730?'s':'')+')':'');}
+function simStep(dt){sim.days+=dt*0.012*sim.speed;simDraw()}
+function simStart(){simBuild();simDraw()}
+function simStop(){}
+$('#sim-speed').addEventListener('click',function(e){var b=e.target.closest('[data-sp]');if(!b)return;sim.speed=+b.getAttribute('data-sp');$$('#sim-speed button').forEach(function(x){x.classList.toggle('on',x===b)})});
+$('#sim-play').addEventListener('click',function(){sim.on=!sim.on;this.innerHTML=sim.on?ic('pause')+'Pausar':ic('play')+'Continuar'});
+
+/* ---------------- Compartir ---------------- */
+var METHODS={
+  bt:{t:'Por Bluetooth',btn:['bt','Elegir celular'],steps:[['Activen Bluetooth','En ambos celulares. Acérquenlos y manténganlos juntos.'],['Elige el otro celular','Toca «Elegir celular» y confirma que el nombre sea correcto.'],['Acepten el archivo','La otra persona acepta. Esperen el mensaje «Envío completo».']]},
+  usb:{t:'Por cable USB',btn:['usb','Preparar archivo para USB'],steps:[['Conecta el cable','Une este celular con la computadora o con el otro celular.'],['Permite transferir archivos','En el aviso del celular toca «Transferir archivos».'],['Copia la carpeta','Copia la carpeta AulaNet/Compartir y ábrela en el otro equipo.']]},
+  cel:{t:'De celular a celular',btn:['phone','Buscar equipos cercanos'],steps:[['Acerquen los equipos','Ambos abren AulaNet en «Compartir sin internet».'],['Elige al receptor','Aparecerá en la lista de equipos cercanos.'],['Acepten el archivo','Se envía por un enlace local. No usa internet ni datos.']]}
+};
+var FILES={sistema:{n:'El sistema solar',m:'18 MB · incluye ficha imprimible<br>Descargado en este celular',mb:18},clima:{n:'El clima de Lima',m:'Video MKV · 24 MB<br>Guardado en este celular (no compatible aquí)',mb:24},relato:{n:'Un relato de mi comunidad',m:'Lectura · 2 MB<br>Descargado en este celular',mb:2}};
+function renderShare(){
+  var f=FILES[S.shareFile],m=METHODS[S.method];
+  $('#sh-name').textContent=f.n; $('#sh-meta').innerHTML=f.m; $('#sh-title').textContent=m.t;
+  $('#sh-steps').innerHTML=m.steps.map(function(s,i){return '<div class="step"><span class="n">'+(i+1)+'</span><div><b>'+s[0]+'</b><span>'+s[1]+'</span></div></div>'}).join('');
+  $('#sh-go').innerHTML=ic(m.btn[0])+m.btn[1];
+  $$('.opt').forEach(function(o){o.classList.toggle('on',o.getAttribute('data-method')===S.method)});
+}
+$$('.opt').forEach(function(o){o.addEventListener('click',function(){S.method=o.getAttribute('data-method');renderShare()})});
+$('#sh-go').addEventListener('click',function(){
+  var f=FILES[S.shareFile];
+  if(S.method==='usb'){
+    openSheet('<h3>Preparando para USB</h3><p class="small">Copiando «'+f.n+'» a la carpeta AulaNet/Compartir…</p><div class="bar" style="margin-top:14px"><i id="sb-p" style="width:0%"></i></div><p class="small" id="sb-t">0 %</p>');
+    var p=0; sheetTimer=setInterval(function(){p+=10;$('#sb-p').style.width=p+'%';$('#sb-t').textContent=p+' %';if(p>=100){clearInterval(sheetTimer);
+      $('#sheet').innerHTML='<div class="grab"></div><div class="done-ic">'+ic('check')+'</div><h3 class="center">Archivo listo</h3><p class="small center">Conecta el cable y copia la carpeta <b>AulaNet/Compartir</b> en el otro equipo.</p><div class="stack"><button class="btn pri" data-act="close">Listo</button></div>';}},180);
+    return;
+  }
+  openSheet('<h3>'+(S.method==='bt'?'Buscando celulares con Bluetooth':'Buscando equipos cercanos')+'</h3><p class="small">Mantén los celulares juntos. No necesitas internet.</p><div class="spin"></div>');
+  sheetTimer=setTimeout(function(){
+    var devs=[['Celular de Rosa','Galaxy A10 · a 1 m'],['Prof. Luis Quispe','Moto G7 · a 2 m'],['Tablet del aula 2.° B','Lenovo Tab · a 4 m']];
+    $('#sheet').innerHTML='<div class="grab"></div><h3>Elige el otro celular</h3><p class="small">Confirma que el nombre sea correcto.</p><div class="stack">'+devs.map(function(d){return '<button class="dev" data-dev="'+d[0]+'"><span class="tile">'+ic('phone')+'</span><span class="grow"><b>'+d[0]+'</b><small>'+d[1]+'</small></span>'+ic('chevr')+'</button>'}).join('')+'</div>';
+  },1500);
+});
+function sendTo(name){
+  var f=FILES[S.shareFile];
+  $('#sheet').innerHTML='<div class="grab"></div><h3>Esperando que acepte…</h3><p class="small">'+name+' debe tocar «Aceptar» en su celular.</p><div class="spin"></div>';
+  sheetTimer=setTimeout(function(){
+    $('#sheet').innerHTML='<div class="grab"></div><h3>Enviando a '+name+'</h3><p class="small">«'+f.n+'» · no uses datos ni internet</p><div class="bar" style="margin-top:14px"><i id="sb-p" style="width:0%"></i></div><p class="small" id="sb-t">0 de '+f.mb+' MB</p>';
+    var p=0; sheetTimer=setInterval(function(){p+=5;$('#sb-p').style.width=p+'%';$('#sb-t').textContent=Math.round(f.mb*p/100)+' de '+f.mb+' MB';
+      if(p>=100){clearInterval(sheetTimer);
+        $('#sheet').innerHTML='<div class="grab"></div><div class="done-ic">'+ic('check')+'</div><h3 class="center">Envío completo</h3><p class="small center">«'+f.n+'» llegó a '+name+'. El archivo original sigue en tu celular.</p><div class="stack"><button class="btn pri" data-act="close">Listo</button></div>';
+        paintIcons($('#sheet'));}},150);
+  },1300);
+}
+
+/* ---------------- Sin espacio ---------------- */
+var JUNK=[['wa','Videos de WhatsApp','Archivos recibidos hace más de 3 meses',18],['dup','Fotos duplicadas','Copias repetidas en la galería',9],['pdf','Descargas antiguas','PDF y documentos ya leídos',6],['cache','Caché de otras apps','Se vuelve a crear sola',12]];
+function freeMB(){return 8+S.freedMB}
+function renderEspacio(){
+  var f=freeMB(),used=600-f;
+  $('#se-free').textContent=f+' MB libres · se necesitan 34 MB';
+  $('#se-bar').style.width=(used/600*100).toFixed(1)+'%';
+  $('#se-used').textContent=used+' de 600 MB usados en el celular';
+  $('#se-need').textContent= f>=34 ? '¡Listo! Ya hay espacio suficiente. Toca «Ya liberé espacio: reintentar».' : '14 MB del recurso + 20 MB temporales. Libera al menos '+(34-f)+' MB para continuar.';
+}
+function freeSheet(){
+  var h='<h3>Elige qué liberar</h3><p class="small">Tus recursos de AulaNet no aparecen aquí: no se borran.</p><div class="stack">';
+  JUNK.forEach(function(j){var done=S.freedItems[j[0]];h+='<label class="chk" style="'+(done?'opacity:.5':'')+'"><input type="checkbox" data-j="'+j[0]+'" data-mb="'+j[3]+'" '+(done?'disabled checked':'')+'><span class="grow">'+j[1]+' · '+j[3]+' MB<small>'+(done?'Ya liberado':j[2])+'</small></span></label>'});
+  h+='<button class="btn pri" id="free-go" data-act="free-go">'+ic('trash')+'Liberar 0 MB</button></div>';
+  openSheet(h);
+  $('#sheet').addEventListener('change',updFree);
+}
+function selMB(){return $$('#sheet input[data-j]:not([disabled]):checked').reduce(function(a,i){return a+ +i.getAttribute('data-mb')},0)}
+function updFree(){var b=$('#free-go');if(b)b.innerHTML=ic('trash')+'Liberar '+selMB()+' MB'}
+
+/* ---------------- Pausa ---------------- */
+function renderPausa(){
+  var a=S.areas; $('#pa-bar').style.width=a.pct+'%';
+  $('#pa-txt').textContent=a.pct+' % guardado · '+mbOf(a.pct)+' de 5 MB';
+  $('#pa-left').textContent= a.status==='done' ? 'Descarga completa. Ya está lista sin internet.' : 'Faltan '+mbOf(100-a.pct)+' MB. Aún no está listo para abrir.';
+  var b=$('#pa-banner');
+  if(S.wifiFixed){b.className='banner on';b.innerHTML=ic('wifi')+'Wifi conectado · ya puedes continuar'}
+  else{b.className='banner off';b.innerHTML=ic('wifioff')+'Sin conexión · usa lo descargado'}
+}
+function wifiSheet(){
+  openSheet('<h3>Ajustes de wifi</h3><div class="stack"><div class="row-b dev"><b>Wifi</b><button class="toggle" id="wf-t" aria-label="Activar wifi"></button></div><div id="wf-list" class="stack" style="margin:0"></div></div>');
+  $('#wf-t').addEventListener('click',function(){
+    this.classList.add('on');
+    $('#wf-list').innerHTML='<p class="small">Redes disponibles</p>'+[['IE_2045_Docentes','Señal buena'],['Biblioteca_Municipal','Señal media'],['Movistar_8F21','Con contraseña']].map(function(n){return '<button class="dev" data-wnet="'+n[0]+'"><span class="tile">'+ic('wifi')+'</span><span class="grow"><b>'+n[0]+'</b><small>'+n[1]+'</small></span></button>'}).join('');
+  });
+}
+function connectNet(n){
+  $('#sheet').innerHTML='<div class="grab"></div><h3>Conectando a '+n+'…</h3><div class="spin"></div>';
+  sheetTimer=setTimeout(function(){
+    S.wifiFixed=true; closeSheet(); renderPausa(); $('#sb-net').innerHTML='<svg><use href="#i-wifi"/></svg>';
+    toast('Wifi conectado. Ahora vuelve a Mis descargas y toca «Continuar con wifi».');
+  },1300);
+}
+
+/* ---------------- Guardados ---------------- */
+function renderGuardados(){
+  var items=[['sistema','sim'],['relato','lectura'],['audio','audio'],['lima','ficha-lima'],['fracciones',''],['cuerpo',''],['poemas','audio']];
+  if(S.areas.status==='done') items.splice(3,0,['areas','open-areas']);
+  var h='<p class="small">'+(items.length+1)+' recursos en este celular · todos se abren sin internet salvo los marcados.</p>';
+  items.forEach(function(x){var r=R[x[0]];
+    h+='<button class="mitem" data-open="'+x[0]+'"><span class="tile">'+ic(r.ic)+'</span><span class="grow"><b style="color:var(--ink)">'+r.t+(x[0]==='lima'?' (v. 12 MB)':'')+'</b><span class="d">'+r.curso+' · '+r.meta.replace('12 MB',S.lima.updated?'14 MB':'12 MB')+'</span></span><span class="st ok">'+ic('check')+'</span></button>'});
+  h+='<button class="mitem" data-open="clima"><span class="tile" style="background:var(--amber-tile);color:#A0630A">'+ic('video')+'</span><span class="grow"><b style="color:var(--ink)">El clima de Lima</b><span class="d">Sociales · Video MKV · 24 MB · recibido por Bluetooth</span></span><span class="amber-t">No abre</span></button>';
+  $('#gu-list').innerHTML=h;
+}
+function openRes(k){
+  if(k==='sistema')go('detalle'); else if(k==='relato')go('lectura'); else if(k==='audio'||k==='poemas')audioSheet(R[k].t);
+  else if(k==='lima')openFicha('lima'); else if(k==='areas')openAreas(); else if(k==='clima')go('nocompat');
+  else toast('Abriendo «'+R[k].t+'»… (recurso de ejemplo)');
+}
+
+/* ---------------- Audio ---------------- */
+function audioSheet(t){
+  openSheet('<h3>'+(t||'Escucha el relato')+'</h3><p class="small">Audio guardado · se escucha sin internet</p><div class="card" style="margin-top:12px;display:flex;align-items:center;gap:10px"><button class="icon-btn" id="au-b" style="background:var(--blue);color:#fff">'+ic('pause')+'</button><div style="flex:1"><div class="bar" style="margin:0"><i id="au-p" style="width:0%"></i></div></div><span class="small" id="au-t">0:00 / 4:30</span></div>');
+  var s=0,on=true; sheetTimer=setInterval(function(){if(!on)return;s+=3;if(s>270){s=270;on=false}
+    $('#au-p').style.width=(s/270*100)+'%';$('#au-t').textContent=Math.floor(s/60)+':'+('0'+s%60).slice(-2)+' / 4:30'},250);
+  $('#au-b').addEventListener('click',function(){on=!on;this.innerHTML=on?ic('pause'):ic('play')});
+}
+
+/* ---------------- Fichas ---------------- */
+function openFicha(k){
+  if(k==='lima'){
+    $('#fi-title').textContent='Ficha: Lima'; $('#fi-sub').textContent='PDF · 2 páginas · 2 MB · incluida en Lima: mapas y fotos';
+    $('#fi-content').innerHTML='<div class="paper"><h4>Lima: el clima de mi ciudad</h4><p>Nombre: ____________________ Grado: 2.° ___</p><p style="margin-top:8px">Lima casi no tiene lluvias. En invierno (junio a setiembre) el cielo está nublado y hay mucha humedad por la neblina que llega del mar. En verano hace calor y sale el sol.</p>'+
+      '<svg viewBox="0 0 260 90" style="width:100%;margin:10px 0"><rect width="260" height="90" fill="#EEF3FA"/><path d="M20 70 Q60 20 110 45 T200 35 L240 60 L240 85 L20 85Z" fill="#CFE0C9" stroke="#7FA27A"/><circle cx="120" cy="50" r="4" fill="#B3261E"/><text x="128" y="48" font-size="9" fill="#333">Comas</text><circle cx="95" cy="66" r="4" fill="#1F4FA0"/><text x="60" y="80" font-size="9" fill="#333">Lima Centro</text><text x="8" y="14" font-size="9" fill="#555">Océano Pacífico ←</text></svg>'+
+      '<p><b>1.</b> ¿En qué meses hay más neblina?</p><div class="ln"></div><p><b>2.</b> Dibuja cómo se ve el cielo de Comas en invierno.</p><div class="ln"></div><div class="ln"></div><p class="pg">Página 1 de 2</p></div>'+
+      '<div class="paper"><h4>Lomas de Lima</h4><p>Con la humedad del invierno aparecen las lomas: cerros que se cubren de plantas y flores. Algunas están cerca de Comas y Carabayllo.</p><p style="margin-top:6px"><b>3.</b> ¿Por qué crecen plantas en las lomas si casi no llueve?</p><div class="ln"></div><div class="ln"></div><p class="pg">Página 2 de 2</p></div>'+
+      '<button class="btn pri" data-act="save-print">'+ic('printer')+'Guardar para imprimir después</button>';
+  }else{
+    $('#fi-title').textContent='Ficha: El sistema solar'; $('#fi-sub').textContent='PDF · 2 páginas · 1 MB · incluida en los 18 MB';
+    $('#fi-content').innerHTML='<div class="paper"><h4>Ficha de trabajo · El sistema solar</h4><p>Nombre: ____________________ Grado: 2.° ___</p>'+
+      '<svg viewBox="0 0 260 70" style="width:100%;margin:10px 0"><circle cx="20" cy="35" r="16" fill="#F2BE4B"/><circle cx="62" cy="35" r="3" fill="#B9A28C"/><circle cx="90" cy="35" r="5" fill="#E7B46A"/><circle cx="122" cy="35" r="5.5" fill="#5AA8EE"/><circle cx="152" cy="35" r="4" fill="#E07F55"/><circle cx="192" cy="35" r="12" fill="#D8B48A"/><circle cx="238" cy="35" r="10" fill="#E9D6A6"/><text x="122" y="56" font-size="8" text-anchor="middle">Tierra</text></svg>'+
+      '<p><b>1.</b> Escribe el nombre de los 4 planetas más cercanos al Sol.</p><div class="ln"></div><p><b>2.</b> ¿Cuántos días tarda la Tierra en dar una vuelta al Sol?</p><div class="ln"></div><p class="pg">Página 1 de 2</p></div>'+
+      '<div class="paper"><h4>Día y año</h4><p><b>3.</b> Completa: La Tierra gira sobre sí misma en ____ horas y alrededor del Sol en ____ días.</p><p style="margin-top:6px"><b>4.</b> Dibuja la Tierra dando una vuelta alrededor del Sol.</p><div style="border:1px dashed #9AA3B2;height:70px;margin-top:6px"></div><p class="pg">Página 2 de 2</p></div>'+
+      '<button class="btn pri" data-act="save-print">'+ic('printer')+'Guardar para imprimir después</button>';
+  }
+  go('ficha');
+}
+function openAreas(){
+  var i=S.clase.findIndex(function(x){return x.id==='areas'});
+  openSheet('<h3>Áreas y perímetros</h3><p class="small">Actividad · 5 MB · sin internet</p><svg viewBox="0 0 260 120" style="width:100%;margin:12px 0"><rect x="50" y="20" width="160" height="80" fill="#E5F2E9" stroke="#1E7A3C" stroke-width="2"/><text x="130" y="14" font-size="11" text-anchor="middle">8 m</text><text x="216" y="64" font-size="11">5 m</text></svg><p class="p">Calcula el área y el perímetro del huerto del colegio.</p><div class="stack"><button class="btn pri" data-act="ans-sheet">'+ic('check')+'Ver respuesta</button><p class="small center" id="ans-s" style="display:none">Área: 40 m² · Perímetro: 26 m</p></div>');
+}
+
+/* ---------------- Clics ---------------- */
+document.addEventListener('click',function(e){
+  var el;
+  if((el=e.target.closest('[data-back]'))){back();return}
+  if((el=e.target.closest('[data-tabgo]'))){tab(el.getAttribute('data-tabgo'));return}
+  if((el=e.target.closest('[data-go]'))){go(el.getAttribute('data-go'));return}
+  if((el=e.target.closest('[data-jump]'))){var j=el.getAttribute('data-jump'); if(j==='reset'){initState();sim.days=0;S.mc=0;tab('inicio');toast('Demo reiniciada');} else if(j==='pausa'){cutWifi()} else {stack=['inicio']; if(j!=='inicio')stack.push(j); show(j);} return}
+  if((el=e.target.closest('[data-dev]'))){sendTo(el.getAttribute('data-dev'));return}
+  if((el=e.target.closest('[data-wnet]'))){connectNet(el.getAttribute('data-wnet'));return}
+  if((el=e.target.closest('[data-addres]'))){addRes(el.getAttribute('data-addres'));renderClase();closeSheet();return}
+  if((el=e.target.closest('[data-open]'))){openRes(el.getAttribute('data-open'));return}
+  if((el=e.target.closest('[data-fs]'))){var b=$('#read-box'),fs=parseFloat(b.style.fontSize)||13;b.style.fontSize=Math.max(11,Math.min(19,fs+2*+el.getAttribute('data-fs')))+'px';return}
+  if(!(el=e.target.closest('[data-act]')))return;
+  var a=el.getAttribute('data-act');
+  switch(a){
+    case 'close': closeSheet(); break;
+    case 'audio': audioSheet('Escucha el relato'); break;
+    case 'share-sistema': S.shareFile='sistema'; go('compartir'); break;
+    case 'share-clima': S.shareFile='clima'; go('compartir'); break;
+    case 'ficha-sistema': openFicha('sistema'); break;
+    case 'ficha-lima': openFicha('lima'); break;
+    case 'save-print': toast('Guardado en «Para imprimir». Llévalo por USB a cualquier impresora.'); break;
+    case 'add-sistema': if(inClase('sistema')) toast('«El sistema solar» ya está en tu clase.'); else {addRes('sistema'); onEnter('detalle');} break;
+    case 'add-relato': addRes('relato'); break;
+    case 'add-res': addResSheet(); break;
+    case 'verify': verify(); break;
+    case 'enter-class': S.mc=0; go('modo'); break;
+    case 'mc-next': S.mc++; renderModo(); $('#s-modo').scrollTop=0; break;
+    case 'mc-prev': S.mc=Math.max(0,S.mc-1); renderModo(); $('#s-modo').scrollTop=0; break;
+    case 'mc-end': toast('Clase terminada. ¡Buen trabajo!'); back(); break;
+    case 'mc-more': $('#mc-more').style.display='block'; el.style.display='none'; break;
+    case 'mc-ans': $('#mc-ans').style.display='block'; el.style.display='none'; break;
+    case 'mc-audio': (function(){var s=0;el.disabled=true;el.innerHTML=ic('headphones')+'Reproduciendo…';var t=setInterval(function(){s+=2;var bar=$('#mc-aud');if(!bar||s>100){clearInterval(t);if(bar){el.disabled=false;el.innerHTML=ic('refresh')+'Escuchar de nuevo'}return}bar.style.width=s+'%';$('#mc-audt').textContent='0:'+('0'+Math.round(s*0.3)).slice(-2)},150)})(); break;
+    case 'dl-areas': S.areas.status='downloading'; S.areas.user=false; renderExplorar(); toast('Descargando con wifi. Puedes seguir usando la app.'); break;
+    case 'pause-areas': S.areas.status='paused'; S.areas.user=true; renderDescargas(); renderExplorar(); break;
+    case 'resume-areas': S.areas.status='downloading'; renderDescargas(); break;
+    case 'pause-lima': S.lima.status='paused'; renderDescargas(); break;
+    case 'resume-lima': S.lima.status='downloading'; renderDescargas(); break;
+    case 'open-areas': openAreas(); break;
+    case 'ans-sheet': $('#ans-s').style.display='block'; el.style.display='none'; break;
+    case 'update-lima': go('sinespacio'); break;
+    case 'cut-wifi': cutWifi(); break;
+    case 'to-descargas': tab('descargas'); break;
+    case 'wifi-settings': wifiSheet(); break;
+    case 'free-space': freeSheet(); break;
+    case 'free-go': (function(){var mb=selMB(); if(!mb){toast('Marca al menos un archivo.');return}
+        $$('#sheet input[data-j]:checked').forEach(function(i){S.freedItems[i.getAttribute('data-j')]=1}); S.freedMB+=mb; closeSheet(); renderEspacio(); toast('Liberaste '+mb+' MB. Ahora hay '+freeMB()+' MB libres.');})(); break;
+    case 'retry-space': if(freeMB()>=34){ S.lima.status='downloading'; S.lima.mb=0; toast('Hay espacio suficiente. Actualizando «Lima: mapas y fotos»…'); setTimeout(function(){tab('descargas')},600);} else toast('Aún faltan '+(34-freeMB())+' MB. Elige archivos para liberar.'); break;
+  }
+});
+function cutWifi(){
+  if(S.areas.status==='done'){S.areas.pct=60;}
+  S.areas.status='paused'; S.areas.user=false; S.wifiFixed=false;
+  stack=['descargas','pausa']; show('pausa');
+}
+// Al entrar a Descargas tras arreglar el wifi, mantener icono
+$('#cl-name').addEventListener('input',function(){$('#mc-name').textContent=this.value});
+
+/* Inicio */
+renderDescargas(); S.areas.status='idle'; renderExplorar();
+show('inicio');
+})();
+</script>
+</body>
+</html>
